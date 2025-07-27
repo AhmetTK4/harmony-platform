@@ -1,0 +1,14 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: payment-service
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka
