@@ -110,3 +110,7 @@ cd order-service
 **Ahmet Temel Kundupoğlu**  
 *Java Backend Developer & Open Source Enthusiast*  
 [**GitHub: AhmetTK4**](https://github.com/AhmetTK4)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
