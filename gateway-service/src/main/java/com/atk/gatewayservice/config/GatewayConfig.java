@@ -22,6 +22,21 @@ public class GatewayConfig {
                         .filters(f -> f.stripPrefix(1))
                         .uri("lb://product-service"))
 
+                .route("order-service", r -> r
+                        .path("/api/orders/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://order-service"))
+
+                .route("payment-service", r -> r
+                        .path("/api/payments/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://payment-service"))
+
+                .route("shipping-service", r -> r
+                        .path("/api/shipping/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://shipping-service"))
+
                 .build();
     }
 

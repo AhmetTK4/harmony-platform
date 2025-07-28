@@ -5,19 +5,6 @@ spring:
   application:
     name: gateway-service
 
-  cloud:
-    gateway:
-      routes:
-        - id: user-swagger
-          uri: http://user-service:8081
-          predicates:
-            - Path=/user-service/v3/api-docs
-        - id: product-swagger
-          uri: http://product-service:8082
-          predicates:
-            - Path=/product-service/v3/api-docs
-
-
 eureka:
   client:
     service-url:
@@ -32,15 +19,5 @@ management:
     health:
       show-details: always
 
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    urls:
-      - name: user-service
-        url: http://localhost:8081/v3/api-docs
-      - name: product-service
-        url: http://localhost:8082/v3/api-docs
-  api-docs:
-    enabled: false
 
 
