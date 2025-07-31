@@ -41,4 +41,4 @@ springdoc:
     path: /swagger-ui.html
 
 jwt:
-  secret: TemelSuperSecretJwtKeyForHmacSha256!
+  secret: TemelSuperSecretJwtKeyAhmetKAtKeaSt32Byte!
