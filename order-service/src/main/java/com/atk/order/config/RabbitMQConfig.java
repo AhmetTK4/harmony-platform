@@ -14,7 +14,7 @@ public class RabbitMQConfig {
     //Rollback
     public static final String ROLLBACK_EXCHANGE = "order.rollback.exchange";
     public static final String ROLLBACK_QUEUE = "order.rollback.queue";
-    public static final String ROLLBACK_ROUTING_KEY = "order.callback";
+    public static final String ROLLBACK_ROUTING_KEY = "order.rollback";
 
     //Normal
     @Bean
