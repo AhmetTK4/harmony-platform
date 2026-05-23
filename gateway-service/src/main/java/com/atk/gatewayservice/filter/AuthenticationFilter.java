@@ -3,7 +3,6 @@ package com.atk.gatewayservice.filter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -19,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> implements Ordered {
 
@@ -27,6 +25,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     private String secretKeyString;
 
     public static class Config {}
+
+    public AuthenticationFilter() {
+        super(Config.class);
+    }
 
 
     @Override

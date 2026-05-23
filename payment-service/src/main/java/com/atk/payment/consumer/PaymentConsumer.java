@@ -18,57 +18,73 @@ public class PaymentConsumer {
     private final RabbitTemplate rabbitTemplate;
 
     @RabbitListener(queues = "order.queue")
-    public void handleOrderCreated(OrderCreatedEvent event) {
-        log.info("✅ Payment Service: Received order: {}", event);
+    public void handleOrderCreated(OrderCreatedEvent orderEvent) {
 
-        boolean paymentResult = simulatePayment();
+        log.info("Payment service order bilgisini aldı. Order id: {}", orderEvent.orderId());
 
-        if (paymentResult) {
-            log.info("💳 Payment successful for Order ID: {}", event.orderId());
+        boolean isPaymentSuccess = makePayment();
 
-            // 1️⃣ Publish Payment Completed Event
-            PaymentCompletedEvent completedEvent = new PaymentCompletedEvent(
-                    event.orderId(), true
+        if (isPaymentSuccess) {
+
+            log.info("Ödeme başarılı. Order id: {}", orderEvent.orderId());
+
+            PaymentCompletedEvent paymentCompletedEvent = new PaymentCompletedEvent(
+                    orderEvent.orderId(),
+                    true
             );
+
             rabbitTemplate.convertAndSend(
                     RabbitMQConfig.PAYMENT_EXCHANGE,
                     RabbitMQConfig.PAYMENT_ROUTING_KEY,
-                    completedEvent
+                    paymentCompletedEvent
             );
 
-            // 2️⃣ Publish Shipping Created Event
-            ShippingCreatedEvent shippingEvent = new ShippingCreatedEvent(
-                    event.orderId(),
+            log.info("Payment completed event gönderildi. Order id: {}", orderEvent.orderId());
+
+            ShippingCreatedEvent shippingCreatedEvent = new ShippingCreatedEvent(
+                    orderEvent.orderId(),
                     "SHIPPING_STARTED",
-                    event.address()
+                    orderEvent.address()
             );
+
             rabbitTemplate.convertAndSend(
                     RabbitMQConfig.SHIPPING_EXCHANGE,
                     RabbitMQConfig.SHIPPING_ROUTING_KEY,
-                    shippingEvent
+                    shippingCreatedEvent
             );
+
+            log.info("Shipping event gönderildi. Order id: {}", orderEvent.orderId());
 
         } else {
-            log.warn("❌ Payment failed for Order ID: {}", event.orderId());
 
-            // Publish Rollback Event
-            OrderCreatedEvent rollbackEvent = new OrderCreatedEvent(
-                    event.orderId(),
-                    event.userId(),
-                    event.productId(),
-                    event.quantity(),
+            log.warn("Ödeme başarısız oldu. Order id: {}", orderEvent.orderId());
+
+            OrderCreatedEvent failedOrderEvent = new OrderCreatedEvent(
+                    orderEvent.orderId(),
+                    orderEvent.userId(),
+                    orderEvent.productId(),
+                    orderEvent.quantity(),
                     "PAYMENT_FAILED",
-                    event.address()
+                    orderEvent.address()
             );
+
             rabbitTemplate.convertAndSend(
                     RabbitMQConfig.ROLLBACK_EXCHANGE,
                     RabbitMQConfig.ROLLBACK_ROUTING_KEY,
-                    rollbackEvent
+                    failedOrderEvent
             );
+
+            log.info("Rollback event gönderildi. Order id: {}", orderEvent.orderId());
         }
     }
 
-    private boolean simulatePayment() {
-        return Math.random() > 0.2;
+    private boolean makePayment() {
+        double randomValue = Math.random();
+
+        if (randomValue > 0.2) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
