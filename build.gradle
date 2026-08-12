@@ -1,0 +1,11 @@
+tasks.register('buildAll') {
+    group = 'build'
+    description = 'Builds every service in the platform.'
+    dependsOn gradle.includedBuilds*.task(':build')
+}
+
+tasks.register('cleanAll') {
+    group = 'build'
+    description = 'Cleans every service in the platform.'
+    dependsOn gradle.includedBuilds*.task(':clean')
+}

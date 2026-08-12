@@ -1,0 +1,15 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
+rootProject.name = 'harmony-platform'
+
+// Each service is a standalone Gradle build so it can still be built and run on
+// its own; they are wired together here only to give the IDE a single project.
+['discovery-service',
+ 'gateway-service',
+ 'user-service',
+ 'product-service',
+ 'order-service',
+ 'payment-service',
+ 'shipping-service'].each { includeBuild it }
