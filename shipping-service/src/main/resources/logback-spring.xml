@@ -4,20 +4,22 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>logstash:5001</destination>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-        <keepAliveDuration>5 minutes</keepAliveDuration>
-    </appender>
-
-    <logger name="com.atk" level="DEBUG">
-        <appender-ref ref="LOGSTASH"/>
-        <appender-ref ref="CONSOLE"/>
-    </logger>
+    <logger name="com.atk" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="LOGSTASH"/>
     </root>
+
+    <springProfile name="docker">
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>${LOGSTASH_DESTINATION:-logstash:5001}</destination>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+            <keepAliveDuration>5 minutes</keepAliveDuration>
+        </appender>
+
+        <root>
+            <appender-ref ref="LOGSTASH"/>
+        </root>
+    </springProfile>
 
 </configuration>
