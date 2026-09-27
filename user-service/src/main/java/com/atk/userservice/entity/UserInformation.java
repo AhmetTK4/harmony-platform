@@ -17,6 +17,6 @@ public class UserInformation {
     @Column(unique = true)
     private  String username;
     private String email;
-    private String password; //TODO: Add hashing with BCrypt
+    private String password;
 
 }

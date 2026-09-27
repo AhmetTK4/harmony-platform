@@ -14,6 +14,7 @@ services:
     depends_on:
       - discovery-service
     environment:
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a random secret of at least 32 bytes}
       SPRING_PROFILES_ACTIVE: docker
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       LOGSTASH_DESTINATION: logstash:5001
@@ -28,6 +29,7 @@ services:
     depends_on:
       - discovery-service
     environment:
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a random secret of at least 32 bytes}
       SPRING_PROFILES_ACTIVE: docker
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
     ports:

@@ -36,7 +36,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         return (exchange, chain) -> {
             String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
             log.info("Incoming request URI: {}", exchange.getRequest().getURI());
-            log.info("Auth header: {}", authHeader);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 log.warn("Missing or invalid Authorization header");
                 return onError(exchange, "Missing or invalid Authorization header", HttpStatus.UNAUTHORIZED);
@@ -53,13 +52,13 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         .parseClaimsJws(token)
                         .getBody();
 
-                exchange.getRequest().mutate()
+                var request = exchange.getRequest().mutate()
                         .header("username", claims.getSubject())
                         .build();
+                exchange = exchange.mutate().request(request).build();
 
             } catch (Exception e) {
-                log.error("Invalid JWT Token: {}", e.getMessage());
-                return onError(exchange, "Invalid JWT Token: " + e.getMessage(), HttpStatus.UNAUTHORIZED);
+                return onError(exchange, "Invalid JWT token", HttpStatus.UNAUTHORIZED);
             }
 
             return chain.filter(exchange);
