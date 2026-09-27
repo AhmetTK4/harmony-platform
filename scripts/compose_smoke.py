@@ -71,6 +71,9 @@ def main():
     # Wait for real consumers/bindings before publishing a message.
     for service in ("payment-service", "shipping-service", "order-service"):
         eventually(service + " RabbitMQ connection", lambda service=service: logs_contain(service, "Created new connection"))
+    # Eureka registration and the gateway's route cache converge independently.
+    # GET returns 405 when the POST-only controller is reachable, without creating an order.
+    eventually("gateway discovers order-service", lambda: request(base + "/api/orders", token=token, expected=405))
     order = {"orderId": "success-" + uuid.uuid4().hex, "userId": username, "productId": "demo", "quantity": 1, "address": "Disposable CI address"}
     request(base + "/api/orders", order, token)
     eventually("order -> payment -> shipping", lambda: logs_contain("shipping-service", "Shipping completed for Order ID: " + order["orderId"]))
