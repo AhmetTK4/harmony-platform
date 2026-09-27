@@ -46,6 +46,24 @@ It simulates a basic e-commerce ecosystem using **RabbitMQ** messaging and servi
 
 ## Configuration
 
+### JWT signing key
+
+Set `JWT_SECRET` to a random secret of at least 32 bytes before starting `user-service` and `gateway-service`. Both services must use the same value; there is deliberately no built-in application key. For example, in a POSIX shell:
+
+```sh
+export JWT_SECRET="$(openssl rand -hex 32)"
+```
+
+In PowerShell:
+
+```powershell
+$env:JWT_SECRET = [Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+```
+
+Start local services from that shell, or run Docker Compose there so it inherits the value. If you use an IDE, add the value to both services' environment settings. Never commit it. Changing the key invalidates existing tokens. If a previously committed key was used outside a disposable local demo, rotate it in that environment.
+
+Registration hashes passwords with BCrypt. Previously created plaintext demo accounts must be recreated; the in-memory H2 database is cleared when its service stops. Tests use their own test-only key and do not need this environment variable.
+
 Every service defaults to **localhost** so it can run directly from your machine.
 Docker Compose overrides those defaults with environment variables, so both modes
 work from the same configuration:
@@ -144,6 +162,19 @@ docker compose up --build
 
 ## Sample Flow
 
+```mermaid
+flowchart LR
+    Client --> Gateway
+    Gateway --> User[User service: register / login]
+    Gateway --> Product[Product service]
+    Gateway --> Order[Order service]
+    Order -->|OrderCreated| RabbitMQ
+    RabbitMQ --> Payment[Payment simulation]
+    Payment -->|success: payment + shipping events| RabbitMQ
+    Payment -->|failure: rollback event| RabbitMQ
+    RabbitMQ --> Shipping[Shipping simulation]
+```
+
 Register a user, log in and call a protected endpoint through the gateway:
 
 ```bash
@@ -198,7 +229,16 @@ The Docker Compose stack is still running. Stop it with `docker compose stop`.
 - Kafka support  
 - Circuit Breakers (Resilience4j)  
 - Distributed Tracing (Micrometer Tracing + Zipkin)  
-- Password hashing in `user-service`
+
+## Verification and limitations
+
+Run `./gradlew buildAll` (Windows: `.\gradlew.bat buildAll`) to build and test all seven services. The authentication tests check password hashing, successful login, and rejected credentials. Gateway tests check missing/malformed/expired tokens and forwarding the authenticated username instead of a client-supplied value. Payment tests deterministically check successful payment/shipping events and the failure/rollback path without publishing real messages. GitHub Actions runs the same build for pull requests and `main`.
+
+This is a local learning platform, not a production deployment. Payment success is simulated; shipping is logged, and H2 data is ephemeral. Message redelivery is not yet deduplicated, so repeated messages can repeat side effects. Durable outbox delivery, idempotent consumers, production authorization/rate limiting, and hardened infrastructure remain future work. Compose exposes development services on host ports; do not deploy this configuration unchanged to the public internet.
+
+The Swagger UI is available in `user-service` at `http://localhost:8081/swagger-ui.html`; platform-wide API documentation remains future work.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution and verification steps.
 
 ---
 

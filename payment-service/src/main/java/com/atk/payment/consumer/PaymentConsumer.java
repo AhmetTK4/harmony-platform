@@ -4,6 +4,7 @@ import com.atk.payment.config.RabbitMQConfig;
 import com.atk.payment.model.OrderCreatedEvent;
 import com.atk.payment.model.PaymentCompletedEvent;
 import com.atk.payment.model.ShippingCreatedEvent;
+import com.atk.payment.service.PaymentSimulator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -16,13 +17,14 @@ import org.springframework.stereotype.Service;
 public class PaymentConsumer {
 
     private final RabbitTemplate rabbitTemplate;
+    private final PaymentSimulator paymentSimulator;
 
     @RabbitListener(queues = "order.queue")
     public void handleOrderCreated(OrderCreatedEvent orderEvent) {
 
         log.info("Payment service order bilgisini aldı. Order id: {}", orderEvent.orderId());
 
-        boolean isPaymentSuccess = makePayment();
+        boolean isPaymentSuccess = paymentSimulator.succeeds();
 
         if (isPaymentSuccess) {
 
@@ -78,13 +80,4 @@ public class PaymentConsumer {
         }
     }
 
-    private boolean makePayment() {
-        double randomValue = Math.random();
-
-        if (randomValue > 0.2) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

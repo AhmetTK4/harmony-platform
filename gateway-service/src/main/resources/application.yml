@@ -25,4 +25,4 @@ logging:
   config: classpath:logback-spring.xml
 
 jwt:
-  secret: TemelSuperSecretJwtKeyAhmetKAtKeaSt32Byte!
+  secret: ${JWT_SECRET}
