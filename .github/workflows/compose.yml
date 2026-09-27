@@ -1,0 +1,38 @@
+name: Docker Compose integration
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
+      COMPOSE_PROJECT_NAME: harmony-ci
+      COMPOSE_PARALLEL_LIMIT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate disposable local test secret
+        run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+      - name: Build and start the complete stack
+        run: docker compose up -d --build
+      - name: Check authentication, real messaging, and infrastructure
+        run: python3 scripts/compose_smoke.py
+      - name: Save container diagnostics
+        if: always()
+        run: |
+          mkdir -p compose-results
+          docker compose ps -a > compose-results/containers.txt
+          docker compose logs --no-color > compose-results/compose.log 2>&1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compose-results
+          path: compose-results/
+      - name: Remove disposable test containers and volumes
+        if: always()
+        run: docker compose down -v --remove-orphans
