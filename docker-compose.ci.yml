@@ -1,0 +1,27 @@
+# Disposable integration environment; the normal Compose defaults are unchanged.
+services:
+  discovery-service:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+  gateway-service:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+  user-service:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+  product-service:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+  order-service:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+  payment-service:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+      PAYMENT_SIMULATION_SUCCESS_RATE: ${PAYMENT_SIMULATION_SUCCESS_RATE:-1.0}
+  shipping-service:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx256m
+  logstash:
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx256m

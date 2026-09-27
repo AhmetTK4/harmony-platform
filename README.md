@@ -251,3 +251,21 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution and verification steps.
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Full Docker Compose integration check
+
+The `Docker Compose integration` workflow builds and starts the complete Compose stack, checks service and observability readiness, registers/logs in a disposable user, rejects invalid credentials/tokens, and sends orders through real RabbitMQ consumers. It verifies shipping on successful simulated payment and the rollback log on failed simulated payment. Rollback does not yet compensate database state.
+
+For a disposable local environment with Docker Compose and Python 3:
+
+```bash
+export JWT_SECRET=$(openssl rand -hex 32)
+export COMPOSE_FILE=docker-compose.yml:docker-compose.ci.yml
+export COMPOSE_PROJECT_NAME=harmony-ci
+export COMPOSE_PARALLEL_LIMIT=1
+docker compose up -d --build
+python3 scripts/compose_smoke.py
+docker compose down -v --remove-orphans
+```
+
+The CI override limits Java heaps and sets the learning-only payment simulator to deterministic success; the script recreates payment-service with a zero success rate for the failure scenario. Normal application startup keeps an 80% simulated success rate. Run this only against disposable local containers: the script creates test data and recreates payment-service. The final cleanup removes this Compose project's containers and volumes. CI retains diagnostic logs; no deployment is performed.
