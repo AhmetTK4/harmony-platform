@@ -232,7 +232,7 @@ The Docker Compose stack is still running. Stop it with `docker compose stop`.
 
 ## Verification and limitations
 
-Run `./gradlew buildAll` (Windows: `.\gradlew.bat buildAll`) to build and test all seven services. The authentication tests check password hashing, successful login, and rejected credentials. Gateway tests check missing/malformed/expired tokens and forwarding the authenticated username instead of a client-supplied value. GitHub Actions runs the same build for pull requests and `main`.
+Run `./gradlew buildAll` (Windows: `.\gradlew.bat buildAll`) to build and test all seven services. The authentication tests check password hashing, successful login, and rejected credentials. Gateway tests check missing/malformed/expired tokens and forwarding the authenticated username instead of a client-supplied value. Payment tests deterministically check successful payment/shipping events and the failure/rollback path without publishing real messages. GitHub Actions runs the same build for pull requests and `main`.
 
 This is a local learning platform, not a production deployment. Payment success is simulated; shipping is logged, and H2 data is ephemeral. Message redelivery is not yet deduplicated, so repeated messages can repeat side effects. Durable outbox delivery, idempotent consumers, production authorization/rate limiting, and hardened infrastructure remain future work. Compose exposes development services on host ports; do not deploy this configuration unchanged to the public internet.
 
