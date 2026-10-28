@@ -66,15 +66,30 @@ the console without spamming connection errors.
 
 ###  Prerequisites
 
-- **JDK 21** (the Gradle toolchain will provision one automatically if missing)
+- **JDK 21** (required to start Gradle and compile every service)
 - **RabbitMQ** on `localhost:5672` — only needed for the order/payment/shipping flow
 
 The other services run without any external infrastructure; they use in-memory H2.
 
 ### 1. Build every service
 
+Linux and macOS:
+
 ```bash
 ./gradlew buildAll
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\build-all.ps1
+```
+
+The PowerShell script fails fast with an actionable message when `JAVA_HOME` or
+`PATH` points to an incompatible Java version. You can select a JDK explicitly:
+
+```powershell
+.\scripts\build-all.ps1 -JavaHome 'C:\Program Files\Eclipse Adoptium\jdk-21'
 ```
 
 Each service is also a standalone Gradle build:
